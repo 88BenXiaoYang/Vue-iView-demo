@@ -94,35 +94,21 @@ export default {
       this.$refs[name].validate((valid) => {
         if (valid) {
           if (that.verifyCode === that.formItem.code) {
-            that.$http.post(that.GLOBAL.serverPath + '/excise/login',
-              {
-                account: that.formItem.account,
-                password: that.formItem.password
-              },
-              {
-                emulateJSON: true
-              }
-            ).then(function (res) {
-              console.log(res.data.loginUser)
-              if (res.data.result === 'yes') {
-                this.$Message.success('登录成功!')
-                window.localStorage.setItem('userId', res.data.loginUser.rid)
-                window.localStorage.setItem('account', res.data.loginUser.account)
-                window.localStorage.setItem('username', res.data.loginUser.name)
-                window.localStorage.setItem('sex', res.data.loginUser.sex)
-                window.localStorage.setItem('condi', res.data.loginUser.condi)
-                console.log('hahaha' + res.data.condi)
-                if (res.data.condi === 2) {
-                  this.$router.replace({path: '/index'})
-                } else if (res.data.condi === 1) {
-                  this.$router.replace({path: '/manager'})
-                } else {
-                  this.$router.replace({path: '/reader'})
-                }
+            that.$http.get('https://shengyada.org.cn/bgLogin/bg/login').then((success) => {
+              var data = success.data
+              var account = data[0].account
+              var password = data[0].password
+              var loginStatus = data[0].loginstatus
+              if ((this.formItem.account === account) &&
+               (this.formItem.password === password) &&
+                (loginStatus === 'success')) {
+                this.$router.replace({path: '/manager'})
               } else {
-                this.$Message.error('账号或密码有误！')
+                alert('login failed!!!')
                 this.loading = false
               }
+            }, (error) => {
+              if (error) {}
             })
           } else {
             that.$Message.error('请填写正确的验证码!')
